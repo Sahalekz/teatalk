@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { menuItems as defaultMenuItems, menuCategories as defaultCategories } from '../data/menu';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -175,6 +175,13 @@ export function CmsProvider({ children }) {
 
   const [syncStatus, setSyncStatus] = useState(isCloudConfigured ? 'connected' : 'local');
 
+  // Ref to store true live state for async cloud saves
+  const latestStateRef = useRef({ menuItems, galleryItems, siteContent, outlets });
+
+  useEffect(() => {
+    latestStateRef.current = { menuItems, galleryItems, siteContent, outlets };
+  }, [menuItems, galleryItems, siteContent, outlets]);
+
   // Load from Supabase Cloud on mount if connected
   useEffect(() => {
     if (!supabase) return;
@@ -192,10 +199,22 @@ export function CmsProvider({ children }) {
           const cloudContent = data.siteContent || data.sitecontent;
           const cloudOutlets = data.outlets;
 
-          if (Array.isArray(cloudMenu) && cloudMenu.length > 0) setMenuItems(cloudMenu);
-          if (Array.isArray(cloudGallery) && cloudGallery.length > 0) setGalleryItems(cloudGallery);
-          if (cloudContent && typeof cloudContent === 'object' && Object.keys(cloudContent).length > 0) setSiteContent(cloudContent);
-          if (Array.isArray(cloudOutlets) && cloudOutlets.length > 0) setOutlets(cloudOutlets);
+          if (Array.isArray(cloudMenu) && cloudMenu.length > 0) {
+            setMenuItems(cloudMenu);
+            latestStateRef.current.menuItems = cloudMenu;
+          }
+          if (Array.isArray(cloudGallery) && cloudGallery.length > 0) {
+            setGalleryItems(cloudGallery);
+            latestStateRef.current.galleryItems = cloudGallery;
+          }
+          if (cloudContent && typeof cloudContent === 'object' && Object.keys(cloudContent).length > 0) {
+            setSiteContent(cloudContent);
+            latestStateRef.current.siteContent = cloudContent;
+          }
+          if (Array.isArray(cloudOutlets) && cloudOutlets.length > 0) {
+            setOutlets(cloudOutlets);
+            latestStateRef.current.outlets = cloudOutlets;
+          }
           setSyncStatus('synced');
         }
       } catch (err) {
@@ -211,10 +230,10 @@ export function CmsProvider({ children }) {
     if (!supabase) return;
     try {
       setSyncStatus('syncing');
-      const targetMenu = overrideData?.menuItems ?? menuItems;
-      const targetGallery = overrideData?.galleryItems ?? galleryItems;
-      const targetContent = overrideData?.siteContent ?? siteContent;
-      const targetOutlets = overrideData?.outlets ?? outlets;
+      const targetMenu = overrideData?.menuItems ?? latestStateRef.current.menuItems;
+      const targetGallery = overrideData?.galleryItems ?? latestStateRef.current.galleryItems;
+      const targetContent = overrideData?.siteContent ?? latestStateRef.current.siteContent;
+      const targetOutlets = overrideData?.outlets ?? latestStateRef.current.outlets;
 
       const payload = {
         id: 1,
@@ -284,35 +303,31 @@ export function CmsProvider({ children }) {
       id: Date.now(),
       popular: item?.popular || false
     };
-    setMenuItems((prev) => {
-      const updated = [newItem, ...(Array.isArray(prev) ? prev : [])];
-      saveToCloud({ menuItems: updated });
-      return updated;
-    });
+    const updated = [newItem, ...(Array.isArray(menuItems) ? menuItems : [])];
+    setMenuItems(updated);
+    latestStateRef.current.menuItems = updated;
+    saveToCloud({ menuItems: updated });
   };
 
   const updateMenuItem = (id, updatedFields) => {
-    setMenuItems((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ menuItems: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(menuItems) ? menuItems : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
+    setMenuItems(updated);
+    latestStateRef.current.menuItems = updated;
+    saveToCloud({ menuItems: updated });
   };
 
   const deleteMenuItem = (id) => {
-    setMenuItems((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ menuItems: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(menuItems) ? menuItems : []).filter((item) => item.id !== id);
+    setMenuItems(updated);
+    latestStateRef.current.menuItems = updated;
+    saveToCloud({ menuItems: updated });
   };
 
   const togglePopularItem = (id) => {
-    setMenuItems((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, popular: !item.popular } : item));
-      saveToCloud({ menuItems: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(menuItems) ? menuItems : []).map((item) => (item.id === id ? { ...item, popular: !item.popular } : item));
+    setMenuItems(updated);
+    latestStateRef.current.menuItems = updated;
+    saveToCloud({ menuItems: updated });
   };
 
   // GALLERY ACTIONS
@@ -325,27 +340,24 @@ export function CmsProvider({ children }) {
       span: item?.span || 'col-span-1',
       id: Date.now()
     };
-    setGalleryItems((prev) => {
-      const updated = [newItem, ...(Array.isArray(prev) ? prev : [])];
-      saveToCloud({ galleryItems: updated });
-      return updated;
-    });
+    const updated = [newItem, ...(Array.isArray(galleryItems) ? galleryItems : [])];
+    setGalleryItems(updated);
+    latestStateRef.current.galleryItems = updated;
+    saveToCloud({ galleryItems: updated });
   };
 
   const updateGalleryItem = (id, updatedFields) => {
-    setGalleryItems((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ galleryItems: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(galleryItems) ? galleryItems : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
+    setGalleryItems(updated);
+    latestStateRef.current.galleryItems = updated;
+    saveToCloud({ galleryItems: updated });
   };
 
   const deleteGalleryItem = (id) => {
-    setGalleryItems((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ galleryItems: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(galleryItems) ? galleryItems : []).filter((item) => item.id !== id);
+    setGalleryItems(updated);
+    latestStateRef.current.galleryItems = updated;
+    saveToCloud({ galleryItems: updated });
   };
 
   // OUTLETS ACTIONS
@@ -358,42 +370,38 @@ export function CmsProvider({ children }) {
       color: outlet?.color || 'bg-[#F5A623] text-[#380B0E]',
       id: Date.now()
     };
-    setOutlets((prev) => {
-      const updated = [...(Array.isArray(prev) ? prev : []), newOutlet];
-      saveToCloud({ outlets: updated });
-      return updated;
-    });
+    const updated = [...(Array.isArray(outlets) ? outlets : []), newOutlet];
+    setOutlets(updated);
+    latestStateRef.current.outlets = updated;
+    saveToCloud({ outlets: updated });
   };
 
   const updateOutlet = (id, updatedFields) => {
-    setOutlets((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ outlets: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(outlets) ? outlets : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
+    setOutlets(updated);
+    latestStateRef.current.outlets = updated;
+    saveToCloud({ outlets: updated });
   };
 
   const deleteOutlet = (id) => {
-    setOutlets((prev) => {
-      const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ outlets: updated });
-      return updated;
-    });
+    const updated = (Array.isArray(outlets) ? outlets : []).filter((item) => item.id !== id);
+    setOutlets(updated);
+    latestStateRef.current.outlets = updated;
+    saveToCloud({ outlets: updated });
   };
 
   // SITE CONTENT ACTIONS
   const updateSiteContent = (sectionKey, newContent) => {
-    setSiteContent((prev) => {
-      const updated = {
-        ...prev,
-        [sectionKey]: {
-          ...prev[sectionKey],
-          ...newContent
-        }
-      };
-      saveToCloud({ siteContent: updated });
-      return updated;
-    });
+    const updated = {
+      ...siteContent,
+      [sectionKey]: {
+        ...siteContent[sectionKey],
+        ...newContent
+      }
+    };
+    setSiteContent(updated);
+    latestStateRef.current.siteContent = updated;
+    saveToCloud({ siteContent: updated });
   };
 
   // RESET & BACKUP
@@ -406,6 +414,12 @@ export function CmsProvider({ children }) {
     setGalleryItems(defaultGalleryItems);
     setSiteContent(defaultSiteContent);
     setOutlets(defaultOutlets);
+    latestStateRef.current = {
+      menuItems: defaultMenuItems,
+      galleryItems: defaultGalleryItems,
+      siteContent: defaultSiteContent,
+      outlets: defaultOutlets
+    };
     saveToCloud({ menuItems: defaultMenuItems, galleryItems: defaultGalleryItems, siteContent: defaultSiteContent, outlets: defaultOutlets });
   };
 
