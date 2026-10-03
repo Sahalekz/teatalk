@@ -187,10 +187,15 @@ export function CmsProvider({ children }) {
           .maybeSingle();
 
         if (data && !error) {
-          if (Array.isArray(data.menuItems) && data.menuItems.length > 0) setMenuItems(data.menuItems);
-          if (Array.isArray(data.galleryItems) && data.galleryItems.length > 0) setGalleryItems(data.galleryItems);
-          if (data.siteContent) setSiteContent(data.siteContent);
-          if (Array.isArray(data.outlets) && data.outlets.length > 0) setOutlets(data.outlets);
+          const cloudMenu = data.menuItems || data.menuitems;
+          const cloudGallery = data.galleryItems || data.galleryitems;
+          const cloudContent = data.siteContent || data.sitecontent;
+          const cloudOutlets = data.outlets;
+
+          if (Array.isArray(cloudMenu) && cloudMenu.length > 0) setMenuItems(cloudMenu);
+          if (Array.isArray(cloudGallery) && cloudGallery.length > 0) setGalleryItems(cloudGallery);
+          if (cloudContent && typeof cloudContent === 'object' && Object.keys(cloudContent).length > 0) setSiteContent(cloudContent);
+          if (Array.isArray(cloudOutlets) && cloudOutlets.length > 0) setOutlets(cloudOutlets);
           setSyncStatus('synced');
         }
       } catch (err) {
@@ -206,12 +211,20 @@ export function CmsProvider({ children }) {
     if (!supabase) return;
     try {
       setSyncStatus('syncing');
+      const targetMenu = overrideData?.menuItems ?? menuItems;
+      const targetGallery = overrideData?.galleryItems ?? galleryItems;
+      const targetContent = overrideData?.siteContent ?? siteContent;
+      const targetOutlets = overrideData?.outlets ?? outlets;
+
       const payload = {
         id: 1,
-        menuItems: overrideData?.menuItems ?? menuItems,
-        galleryItems: overrideData?.galleryItems ?? galleryItems,
-        siteContent: overrideData?.siteContent ?? siteContent,
-        outlets: overrideData?.outlets ?? outlets,
+        menuItems: targetMenu,
+        menuitems: targetMenu,
+        galleryItems: targetGallery,
+        galleryitems: targetGallery,
+        siteContent: targetContent,
+        sitecontent: targetContent,
+        outlets: targetOutlets,
         updated_at: new Date().toISOString()
       };
 
