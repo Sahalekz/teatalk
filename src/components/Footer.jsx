@@ -15,7 +15,7 @@ export default function Footer() {
   const { outlets } = useCms();
   const outletNames = Array.isArray(outlets) && outlets.length > 0
     ? outlets.map((o) => o.name).join(' • ')
-    : 'Kerala (12 Operational Outlets)';
+    : 'Areekode • Pazhamparamb • Pookkottur • Kottakkal • Manjeri';
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

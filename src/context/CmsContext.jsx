@@ -58,12 +58,44 @@ const defaultGalleryItems = [
 const defaultOutlets = [
   {
     id: 1,
-    name: 'Kerala',
-    subtitle: '12 Operational Outlets',
-    outlets: '12 Outlets across Kerala',
-    tag: 'India',
+    name: 'Areekode',
+    subtitle: 'Areekode, Kerala',
+    outlets: 'Dine-in • Drive-through • Delivery',
+    tag: '4.5 ★ (59)',
     color: 'bg-[#F5A623] text-[#380B0E]',
-  }
+  },
+  {
+    id: 2,
+    name: 'Pazhamparamb',
+    subtitle: 'Mukkam, Kerala',
+    outlets: 'Dine-in • Takeaway',
+    tag: '4.0 ★ (127)',
+    color: 'bg-[#E65100] text-[#FFFFFF]',
+  },
+  {
+    id: 3,
+    name: 'Pookkottur',
+    subtitle: 'Pookkottur, Kerala',
+    outlets: 'Dine-in Experience',
+    tag: '4.6 ★ (87)',
+    color: 'bg-[#F5A623] text-[#380B0E]',
+  },
+  {
+    id: 4,
+    name: 'Kottakkal',
+    subtitle: 'Kottakkal, Kerala',
+    outlets: 'Dine-in Experience',
+    tag: '4.7 ★ (44)',
+    color: 'bg-[#E65100] text-[#FFFFFF]',
+  },
+  {
+    id: 5,
+    name: 'Manjeri',
+    subtitle: 'Manjeri, Kerala',
+    outlets: 'Dine-in & Takeaway',
+    tag: 'Kerala',
+    color: 'bg-[#F5A623] text-[#380B0E]',
+  },
 ];
 
 const defaultSiteContent = {
