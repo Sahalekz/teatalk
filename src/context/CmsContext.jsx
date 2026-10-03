@@ -80,6 +80,14 @@ const defaultOutlets = [
     tag: 'Kerala',
     color: 'bg-[#F5A623] text-[#380B0E]',
   },
+  {
+    id: 6,
+    name: 'Omassery',
+    subtitle: 'Puthur, Keralam',
+    outlets: 'Café',
+    tag: '4.3 ★ (230)',
+    color: 'bg-[#E65100] text-[#FFFFFF]',
+  },
 ];
 
 const defaultSiteContent = {
@@ -128,7 +136,9 @@ const defaultSiteContent = {
 
 const isObsoleteOutlets = (arr) => {
   if (!Array.isArray(arr) || arr.length === 0) return true;
-  return arr.some((o) => o?.name === 'Bangalore' || o?.name === 'Saudi Arabia' || (o?.name === 'Kerala' && arr.length === 1));
+  if (arr.some((o) => o?.name === 'Bangalore' || o?.name === 'Saudi Arabia' || (o?.name === 'Kerala' && arr.length === 1))) return true;
+  if (!arr.some((o) => o?.name === 'Omassery')) return true;
+  return false;
 };
 
 const isObsoleteGallery = (arr) => {

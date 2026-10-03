@@ -52,6 +52,14 @@ export default function OutletPresence() {
       tag: 'Kerala',
       color: 'bg-[#F5A623] text-[#380B0E]',
     },
+    {
+      id: 6,
+      name: 'Omassery',
+      subtitle: 'Puthur, Keralam',
+      outlets: 'Café',
+      tag: '4.3 ★ (230)',
+      color: 'bg-[#E65100] text-[#FFFFFF]',
+    },
   ];
 
   return (
