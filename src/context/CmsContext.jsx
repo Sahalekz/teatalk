@@ -7,51 +7,35 @@ const CmsContext = createContext();
 const defaultGalleryItems = [
   {
     id: 1,
-    title: 'Modern Café Storefront Exterior',
-    category: 'Outlet Design',
-    src: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1000&q=80',
+    title: 'Tea Talk Garden Café & Outdoor Lounge',
+    category: 'Garden Café',
+    src: '/gallery-3.jpg',
     span: 'col-span-1 md:col-span-2 row-span-2',
-    desc: 'High-visibility store facade designed to attract daily footfall.'
+    desc: 'Spacious open-air garden café layout designed for community gatherings and evening tea.'
   },
   {
     id: 2,
-    title: 'Warm Community Interior & Seating',
-    category: 'Ambiance',
-    src: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+    title: 'Two-Story Brick Flagship Outlet',
+    category: 'Flagship Outlet',
+    src: '/gallery-4.jpg',
     span: 'col-span-1',
-    desc: 'Comfortable seating optimized for conversations and gatherings.'
+    desc: 'Modern double-decker brick architecture featuring outdoor terrace seating.'
   },
   {
     id: 3,
-    title: 'Efficient Counter & Order Fulfillment Zone',
-    category: 'Store Layout',
-    src: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=800&q=80',
+    title: 'Evening Rooftop Terrace Vibe',
+    category: 'Rooftop Lounge',
+    src: '/gallery-2.jpg',
     span: 'col-span-1',
-    desc: 'Ergonomic counter layout engineered for fast 1-2 minute dispatch.'
+    desc: 'Ambient evening lighting & cozy rooftop seating experience.'
   },
   {
     id: 4,
-    title: 'Urban Express Kiosk Format',
-    category: 'Kiosk Format',
-    src: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80',
-    span: 'col-span-1',
-    desc: 'Compact high-density kiosk setup ideal for tech parks and malls.'
-  },
-  {
-    id: 5,
-    title: 'Evening Café Lighting & Vibe',
-    category: 'Atmosphere',
-    src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+    title: 'Lawn Seating & Tea Talk Signpost',
+    category: 'Outdoor Seating',
+    src: '/gallery-1.jpg',
     span: 'col-span-1 md:col-span-2',
-    desc: 'Cozy lighting atmosphere bringing people together every evening.'
-  },
-  {
-    id: 6,
-    title: 'Flagship Outlet Lounge',
-    category: 'Flagship Lounge',
-    src: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=800&q=80',
-    span: 'col-span-1',
-    desc: 'Spacious flagship seating layout for families and business meetings.'
+    desc: 'Comfortable lawn seating surrounded by lush green landscapes.'
   }
 ];
 
@@ -147,6 +131,11 @@ const isObsoleteOutlets = (arr) => {
   return arr.some((o) => o?.name === 'Bangalore' || o?.name === 'Saudi Arabia' || (o?.name === 'Kerala' && arr.length === 1));
 };
 
+const isObsoleteGallery = (arr) => {
+  if (!Array.isArray(arr) || arr.length === 0) return true;
+  return arr.some((g) => g?.src?.includes('unsplash') || g?.title?.includes('Modern Café Storefront'));
+};
+
 export function CmsProvider({ children }) {
   const isCloudConfigured = isSupabaseConfigured();
 
@@ -167,7 +156,13 @@ export function CmsProvider({ children }) {
   const [galleryItems, setGalleryItems] = useState(() => {
     try {
       const saved = localStorage.getItem('teatalk_cms_gallery');
-      return saved ? JSON.parse(saved) : defaultGalleryItems;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && !isObsoleteGallery(parsed)) {
+          return parsed;
+        }
+      }
+      return defaultGalleryItems;
     } catch {
       return defaultGalleryItems;
     }
@@ -229,10 +224,16 @@ export function CmsProvider({ children }) {
             setMenuItems(cloudMenu);
             latestStateRef.current.menuItems = cloudMenu;
           }
-          if (Array.isArray(cloudGallery) && cloudGallery.length > 0) {
+
+          if (Array.isArray(cloudGallery) && !isObsoleteGallery(cloudGallery)) {
             setGalleryItems(cloudGallery);
             latestStateRef.current.galleryItems = cloudGallery;
+          } else {
+            setGalleryItems(defaultGalleryItems);
+            latestStateRef.current.galleryItems = defaultGalleryItems;
+            saveToCloud({ galleryItems: defaultGalleryItems });
           }
+
           if (cloudContent && typeof cloudContent === 'object' && Object.keys(cloudContent).length > 0) {
             setSiteContent(cloudContent);
             latestStateRef.current.siteContent = cloudContent;
@@ -242,7 +243,6 @@ export function CmsProvider({ children }) {
             setOutlets(cloudOutlets);
             latestStateRef.current.outlets = cloudOutlets;
           } else {
-            // Auto-migrate cloud outlets to 5 featured outlets if Supabase holds obsolete outlets
             setOutlets(defaultOutlets);
             latestStateRef.current.outlets = defaultOutlets;
             saveToCloud({ outlets: defaultOutlets });
@@ -380,7 +380,7 @@ export function CmsProvider({ children }) {
   };
 
   const updateGalleryItem = (id, updatedFields) => {
-    const updated = (Array.isArray(galleryItems) ? galleryItems : []).map((item) => (item.id === item.id ? { ...item, ...updatedFields } : item));
+    const updated = (Array.isArray(galleryItems) ? galleryItems : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
     setGalleryItems(updated);
     latestStateRef.current.galleryItems = updated;
     saveToCloud({ galleryItems: updated });
