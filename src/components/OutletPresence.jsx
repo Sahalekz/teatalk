@@ -15,27 +15,11 @@ export default function OutletPresence() {
     {
       id: 1,
       name: 'Kerala',
-      subtitle: 'Original Flagship Roots',
-      outlets: 'Multiple Outlets',
+      subtitle: '12 Operational Outlets',
+      outlets: '12 Outlets across Kerala',
       tag: 'India',
       color: 'bg-[#F5A623] text-[#380B0E]',
-    },
-    {
-      id: 2,
-      name: 'Bangalore',
-      subtitle: 'Tech Capital Hotspots',
-      outlets: 'Metropolitan Presence',
-      tag: 'India',
-      color: 'bg-[#E65100] text-[#FFFFFF]',
-    },
-    {
-      id: 3,
-      name: 'Saudi Arabia',
-      subtitle: 'International Expansion',
-      outlets: 'GCC Operations',
-      tag: 'International',
-      color: 'bg-[#F5A623] text-[#380B0E]',
-    },
+    }
   ];
 
   return (
@@ -55,14 +39,14 @@ export default function OutletPresence() {
             <span className="text-[#D98205]">to Everywhere.</span>
           </h2>
           <p className="mt-3 text-base text-[#380B0E]/80 font-medium">
-            Expanding our community-focused tea experience across 12 operational outlets nationwide and internationally.
+            Expanding our community-focused tea experience across 12 operational outlets in Kerala.
           </p>
         </div>
 
         {/* Map Showcase Card */}
-        <div className="bg-[#FFFDF6] border-4 border-[#EAD5BF] rounded-[45px] rounded-br-[12px] p-8 sm:p-12 relative overflow-hidden shadow-2xl">
+        <div className="bg-[#FFFDF6] border-4 border-[#EAD5BF] rounded-[45px] rounded-br-[12px] p-8 sm:p-12 relative overflow-hidden shadow-2xl max-w-4xl mx-auto">
           
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 relative z-10 border-b-2 border-[#EAD5BF] pb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-10 relative z-10 border-b-2 border-[#EAD5BF] pb-8">
             <div>
               <span className="text-xs uppercase font-extrabold tracking-widest text-[#D98205]">
                 Total Network Size
@@ -78,32 +62,32 @@ export default function OutletPresence() {
             </div>
           </div>
 
-          {/* Location Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
+          {/* Location Cards Centered */}
+          <div className="flex justify-center relative z-10">
             {locationsList.map((loc, idx) => (
               <div
                 key={loc.id || loc.name}
                 ref={(el) => (pinsRef.current[idx] = el)}
-                className="bg-[#FAF3E1] border-2 border-[#EAD5BF] hover:border-[#F5A623] rounded-3xl p-6 transition-all duration-300 hover:-translate-y-2 group shadow-lg"
+                className="bg-[#FAF3E1] border-2 border-[#EAD5BF] hover:border-[#F5A623] rounded-3xl p-8 max-w-md w-full transition-all duration-300 hover:-translate-y-2 group shadow-xl text-center"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-2xl bg-[#F5E7D5] border border-[#E0CFB9] flex items-center justify-center text-[#380B0E] group-hover:bg-[#F5A623] transition-colors shadow-sm">
                     <MapPin className="w-6 h-6" />
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-['Bricolage_Grotesque'] font-extrabold ${loc.color || 'bg-[#F5A623] text-[#380B0E]'}`}>
+                  <span className={`px-4 py-1.5 rounded-full text-xs font-['Bricolage_Grotesque'] font-extrabold ${loc.color || 'bg-[#F5A623] text-[#380B0E]'}`}>
                     {loc.tag || 'India'}
                   </span>
                 </div>
 
-                <h3 className="font-['Bricolage_Grotesque'] font-extrabold text-3xl text-[#380B0E] group-hover:text-[#D98205] transition-colors">
+                <h3 className="font-['Bricolage_Grotesque'] font-extrabold text-4xl text-[#380B0E] group-hover:text-[#D98205] transition-colors">
                   {loc.name}
                 </h3>
                 
-                <div className="text-xs font-extrabold uppercase text-[#D98205] mt-1">
+                <div className="text-sm font-extrabold uppercase text-[#D98205] mt-1">
                   {loc.subtitle}
                 </div>
 
-                <p className="text-xs text-[#380B0E]/70 mt-3 font-semibold">
+                <p className="text-sm text-[#380B0E]/80 mt-3 font-bold">
                   {loc.outlets}
                 </p>
               </div>

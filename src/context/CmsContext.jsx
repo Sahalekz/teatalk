@@ -59,27 +59,11 @@ const defaultOutlets = [
   {
     id: 1,
     name: 'Kerala',
-    subtitle: 'Original Flagship Roots',
-    outlets: 'Multiple Outlets',
+    subtitle: '12 Operational Outlets',
+    outlets: '12 Outlets across Kerala',
     tag: 'India',
     color: 'bg-[#F5A623] text-[#380B0E]',
-  },
-  {
-    id: 2,
-    name: 'Bangalore',
-    subtitle: 'Tech Capital Hotspots',
-    outlets: 'Metropolitan Presence',
-    tag: 'India',
-    color: 'bg-[#E65100] text-[#FFFFFF]',
-  },
-  {
-    id: 3,
-    name: 'Saudi Arabia',
-    subtitle: 'International Expansion',
-    outlets: 'GCC Operations',
-    tag: 'International',
-    color: 'bg-[#F5A623] text-[#380B0E]',
-  },
+  }
 ];
 
 const defaultSiteContent = {
@@ -93,8 +77,7 @@ const defaultSiteContent = {
   },
   stats: {
     foundedYear: "2020",
-    outletsCount: "12",
-    regionsCount: "3 Regions",
+    outletsCount: "12 Outlets",
     varietiesCount: "20+"
   },
   story: {

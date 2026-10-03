@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Calendar, Store, MapPin, Coffee } from 'lucide-react';
+import { Calendar, Store, Coffee } from 'lucide-react';
 import { useCms } from '../context/CmsContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -44,15 +44,9 @@ export default function BrandStats() {
     },
     {
       icon: Store,
-      number: statsContent.outletsCount || '12',
+      number: statsContent.outletsCount || '12 Outlets',
       label: 'Operational Outlets',
-      detail: 'Across India & Saudi Arabia',
-    },
-    {
-      icon: MapPin,
-      number: statsContent.regionsCount || '3 Regions',
-      label: 'Presence in',
-      detail: 'Kerala • Bangalore • Saudi Arabia',
+      detail: 'Across Kerala',
     },
     {
       icon: Coffee,
@@ -68,18 +62,18 @@ export default function BrandStats() {
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none select-none bg-[radial-gradient(#380B0E_1px,transparent_1px)] [background-size:24px_24px]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
           {stats.map((stat, idx) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.label}
                 ref={(el) => (statsRef.current[idx] = el)}
-                className="bg-[#FFFDF6] hover:bg-white border-2 border-[#EAD5BF] hover:border-[#F5A623] rounded-3xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-[#F5A623]/15 relative group overflow-hidden"
+                className="bg-[#FFFDF6] hover:bg-white border-2 border-[#EAD5BF] hover:border-[#F5A623] rounded-3xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-[#F5A623]/15 relative group overflow-hidden text-center sm:text-left"
               >
                 <div className="absolute top-0 right-0 w-12 h-12 bg-[#F5E7D5] rounded-bl-3xl group-hover:bg-[#F5A623] transition-colors" />
 
-                <div className="w-12 h-12 rounded-2xl bg-[#F5E7D5] border border-[#E0CFB9] flex items-center justify-center mb-6 text-[#380B0E] group-hover:bg-[#F5A623] group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-12 h-12 rounded-2xl bg-[#F5E7D5] border border-[#E0CFB9] flex items-center justify-center mb-6 text-[#380B0E] group-hover:bg-[#F5A623] group-hover:scale-110 transition-transform shadow-inner mx-auto sm:mx-0">
                   <Icon className="w-6 h-6" />
                 </div>
 
