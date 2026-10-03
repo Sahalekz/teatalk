@@ -142,6 +142,11 @@ const defaultSiteContent = {
   }
 };
 
+const isObsoleteOutlets = (arr) => {
+  if (!Array.isArray(arr) || arr.length === 0) return true;
+  return arr.some((o) => o?.name === 'Bangalore' || o?.name === 'Saudi Arabia' || (o?.name === 'Kerala' && arr.length === 1));
+};
+
 export function CmsProvider({ children }) {
   const isCloudConfigured = isSupabaseConfigured();
 
@@ -182,7 +187,13 @@ export function CmsProvider({ children }) {
   const [outlets, setOutlets] = useState(() => {
     try {
       const saved = localStorage.getItem('teatalk_cms_outlets');
-      return saved ? JSON.parse(saved) : defaultOutlets;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && !isObsoleteOutlets(parsed)) {
+          return parsed;
+        }
+      }
+      return defaultOutlets;
     } catch {
       return defaultOutlets;
     }
@@ -226,10 +237,17 @@ export function CmsProvider({ children }) {
             setSiteContent(cloudContent);
             latestStateRef.current.siteContent = cloudContent;
           }
-          if (Array.isArray(cloudOutlets) && cloudOutlets.length > 0) {
+
+          if (Array.isArray(cloudOutlets) && !isObsoleteOutlets(cloudOutlets)) {
             setOutlets(cloudOutlets);
             latestStateRef.current.outlets = cloudOutlets;
+          } else {
+            // Auto-migrate cloud outlets to 5 featured outlets if Supabase holds obsolete outlets
+            setOutlets(defaultOutlets);
+            latestStateRef.current.outlets = defaultOutlets;
+            saveToCloud({ outlets: defaultOutlets });
           }
+
           setSyncStatus('synced');
         }
       } catch (err) {
@@ -362,7 +380,7 @@ export function CmsProvider({ children }) {
   };
 
   const updateGalleryItem = (id, updatedFields) => {
-    const updated = (Array.isArray(galleryItems) ? galleryItems : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
+    const updated = (Array.isArray(galleryItems) ? galleryItems : []).map((item) => (item.id === item.id ? { ...item, ...updatedFields } : item));
     setGalleryItems(updated);
     latestStateRef.current.galleryItems = updated;
     saveToCloud({ galleryItems: updated });
