@@ -184,13 +184,13 @@ export function CmsProvider({ children }) {
         const { data, error } = await supabase
           .from('teatalk_cms_store')
           .select('*')
-          .single();
+          .maybeSingle();
 
         if (data && !error) {
-          if (data.menuItems) setMenuItems(data.menuItems);
-          if (data.galleryItems) setGalleryItems(data.galleryItems);
+          if (Array.isArray(data.menuItems) && data.menuItems.length > 0) setMenuItems(data.menuItems);
+          if (Array.isArray(data.galleryItems) && data.galleryItems.length > 0) setGalleryItems(data.galleryItems);
           if (data.siteContent) setSiteContent(data.siteContent);
-          if (data.outlets) setOutlets(data.outlets);
+          if (Array.isArray(data.outlets) && data.outlets.length > 0) setOutlets(data.outlets);
           setSyncStatus('synced');
         }
       } catch (err) {
@@ -206,20 +206,25 @@ export function CmsProvider({ children }) {
     if (!supabase) return;
     try {
       setSyncStatus('syncing');
-      const payload = overrideData || {
+      const payload = {
         id: 1,
-        menuItems,
-        galleryItems,
-        siteContent,
-        outlets,
+        menuItems: overrideData?.menuItems ?? menuItems,
+        galleryItems: overrideData?.galleryItems ?? galleryItems,
+        siteContent: overrideData?.siteContent ?? siteContent,
+        outlets: overrideData?.outlets ?? outlets,
         updated_at: new Date().toISOString()
       };
 
-      await supabase
+      const { error } = await supabase
         .from('teatalk_cms_store')
         .upsert(payload, { onConflict: 'id' });
 
-      setSyncStatus('synced');
+      if (!error) {
+        setSyncStatus('synced');
+      } else {
+        console.warn('Supabase upsert error note:', error);
+        setSyncStatus('error');
+      }
     } catch (err) {
       console.warn('Cloud save error:', err);
       setSyncStatus('error');
@@ -268,7 +273,7 @@ export function CmsProvider({ children }) {
     };
     setMenuItems((prev) => {
       const updated = [newItem, ...(Array.isArray(prev) ? prev : [])];
-      saveToCloud({ id: 1, menuItems: updated, galleryItems, siteContent, outlets });
+      saveToCloud({ menuItems: updated });
       return updated;
     });
   };
@@ -276,7 +281,7 @@ export function CmsProvider({ children }) {
   const updateMenuItem = (id, updatedFields) => {
     setMenuItems((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ id: 1, menuItems: updated, galleryItems, siteContent, outlets });
+      saveToCloud({ menuItems: updated });
       return updated;
     });
   };
@@ -284,7 +289,7 @@ export function CmsProvider({ children }) {
   const deleteMenuItem = (id) => {
     setMenuItems((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ id: 1, menuItems: updated, galleryItems, siteContent, outlets });
+      saveToCloud({ menuItems: updated });
       return updated;
     });
   };
@@ -292,7 +297,7 @@ export function CmsProvider({ children }) {
   const togglePopularItem = (id) => {
     setMenuItems((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, popular: !item.popular } : item));
-      saveToCloud({ id: 1, menuItems: updated, galleryItems, siteContent, outlets });
+      saveToCloud({ menuItems: updated });
       return updated;
     });
   };
@@ -309,7 +314,7 @@ export function CmsProvider({ children }) {
     };
     setGalleryItems((prev) => {
       const updated = [newItem, ...(Array.isArray(prev) ? prev : [])];
-      saveToCloud({ id: 1, menuItems, galleryItems: updated, siteContent, outlets });
+      saveToCloud({ galleryItems: updated });
       return updated;
     });
   };
@@ -317,7 +322,7 @@ export function CmsProvider({ children }) {
   const updateGalleryItem = (id, updatedFields) => {
     setGalleryItems((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ id: 1, menuItems, galleryItems: updated, siteContent, outlets });
+      saveToCloud({ galleryItems: updated });
       return updated;
     });
   };
@@ -325,7 +330,7 @@ export function CmsProvider({ children }) {
   const deleteGalleryItem = (id) => {
     setGalleryItems((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ id: 1, menuItems, galleryItems: updated, siteContent, outlets });
+      saveToCloud({ galleryItems: updated });
       return updated;
     });
   };
@@ -342,7 +347,7 @@ export function CmsProvider({ children }) {
     };
     setOutlets((prev) => {
       const updated = [...(Array.isArray(prev) ? prev : []), newOutlet];
-      saveToCloud({ id: 1, menuItems, galleryItems, siteContent, outlets: updated });
+      saveToCloud({ outlets: updated });
       return updated;
     });
   };
@@ -350,7 +355,7 @@ export function CmsProvider({ children }) {
   const updateOutlet = (id, updatedFields) => {
     setOutlets((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).map((item) => (item.id === id ? { ...item, ...updatedFields } : item));
-      saveToCloud({ id: 1, menuItems, galleryItems, siteContent, outlets: updated });
+      saveToCloud({ outlets: updated });
       return updated;
     });
   };
@@ -358,7 +363,7 @@ export function CmsProvider({ children }) {
   const deleteOutlet = (id) => {
     setOutlets((prev) => {
       const updated = (Array.isArray(prev) ? prev : []).filter((item) => item.id !== id);
-      saveToCloud({ id: 1, menuItems, galleryItems, siteContent, outlets: updated });
+      saveToCloud({ outlets: updated });
       return updated;
     });
   };
@@ -373,7 +378,7 @@ export function CmsProvider({ children }) {
           ...newContent
         }
       };
-      saveToCloud({ id: 1, menuItems, galleryItems, siteContent: updated, outlets });
+      saveToCloud({ siteContent: updated });
       return updated;
     });
   };
@@ -388,7 +393,7 @@ export function CmsProvider({ children }) {
     setGalleryItems(defaultGalleryItems);
     setSiteContent(defaultSiteContent);
     setOutlets(defaultOutlets);
-    saveToCloud({ id: 1, menuItems: defaultMenuItems, galleryItems: defaultGalleryItems, siteContent: defaultSiteContent, outlets: defaultOutlets });
+    saveToCloud({ menuItems: defaultMenuItems, galleryItems: defaultGalleryItems, siteContent: defaultSiteContent, outlets: defaultOutlets });
   };
 
   const exportBackup = () => {
